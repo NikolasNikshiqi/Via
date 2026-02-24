@@ -21,9 +21,11 @@ public class Message {
     private MsgStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User sender;
 
     @ManyToOne
+    @JoinColumn(name = "chat_id")
     private Chat chat;
 
     public Message(String text, LocalDateTime timestamp, MsgStatus status, User sender, Chat chat) {

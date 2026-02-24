@@ -1,13 +1,13 @@
 package org.spring.via.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.spring.via.Enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -23,13 +23,26 @@ public class User implements UserDetails {
     @Column(unique = true , nullable = false)
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     @ManyToMany
-    private List<Chat> chats;
+    @JsonIgnore
+    private List<Chat> chats = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_contacts",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "contact_id", referencedColumnName = "id")
+    )
+
+    @JsonIgnore
+    private Set<User> contacts = new HashSet<>();
+
 
     public User(String username, String email, String password, Role role) {
         this.username = username;
@@ -115,4 +128,25 @@ public class User implements UserDetails {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public Set<User> getContacts() {
+        return this.contacts;
+    }
+
+    public void setContacts(Set<User> contacts) {
+        this.contacts = contacts;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return id != null && id.equals(user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
 }
