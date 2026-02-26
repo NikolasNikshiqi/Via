@@ -2,10 +2,9 @@ package org.spring.via.Services;
 
 import org.spring.via.Models.User;
 import org.spring.via.Repositories.UserRepo;
-import org.spring.via.errors.UserNotFound;
+import org.spring.via.errors.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class UserService {
     }
 
     public ResponseEntity<String> addContact(User authedUser, String email){
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFound("User does not exist"));
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User does not exist"));
         User currentUser = userRepo.findById(authedUser.getId()).orElseThrow(IllegalStateException::new);
         currentUser.getContacts().add(user);
         userRepo.save(currentUser);

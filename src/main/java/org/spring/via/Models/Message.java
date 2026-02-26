@@ -1,6 +1,8 @@
 package org.spring.via.Models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.spring.via.Enums.MsgStatus;
 
@@ -13,7 +15,10 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
+    @Column(nullable = false)
     private String text;
+
+    @Column(nullable = false)
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime timestamp;
 
@@ -22,10 +27,16 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"username","email","password","chats","contacts","role","accountNonExpired",
+            "accountNonLocked",
+            "authorities",
+            "credentialsNonExpired",
+            "enabled"})
     private User sender;
 
     @ManyToOne
     @JoinColumn(name = "chat_id")
+    @JsonIgnore
     private Chat chat;
 
     public Message(String text, LocalDateTime timestamp, MsgStatus status, User sender, Chat chat) {

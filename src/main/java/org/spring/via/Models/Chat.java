@@ -17,6 +17,7 @@ public class Chat {
     private Boolean groupChat;
 
     @ManyToMany
+    @JsonIgnore
     private List<User> members =  new ArrayList<>();
 
     @OneToMany (mappedBy = "chat", cascade = CascadeType.ALL)

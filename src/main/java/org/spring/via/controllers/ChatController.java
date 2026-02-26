@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
@@ -21,5 +23,9 @@ public class ChatController {
         return chatService.createChat(currentUser,contactId);
     }
 
+    @GetMapping("/chats")
+    public List<Chat> getChats(@AuthenticationPrincipal User currentUser) {
+        return chatService.getChats(currentUser);
+    }
 
 }
