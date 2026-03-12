@@ -7,14 +7,34 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.Key;
 import java.util.Date;
+import java.util.Properties;
 
 @Component
 public class JwtUtil {
-    private final long EXPIRATION_TIME = 1000 * 3600 * 8;
-    private final String SECRET_KEY = "818fe65a4442476692e5b958344c88af494c86763048ce81bad36f9949c98384";
-    private final Key KEY =  Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+
+    private final long EXPIRATION_TIME ;
+    private String SECRET_KEY;
+    private Key KEY;
+
+    public JwtUtil() {
+        try{
+            FileReader reader = new FileReader(".env");
+            Properties properties = new Properties();
+            properties.load(reader);
+
+            this.SECRET_KEY = properties.getProperty("SECRET_KEY");
+
+            this.KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.EXPIRATION_TIME = 1000 * 3600 * 8;
+    }
 
     public String generateToken(String email) {
         return Jwts.builder()
