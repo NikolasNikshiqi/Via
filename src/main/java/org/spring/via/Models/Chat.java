@@ -1,6 +1,8 @@
 package org.spring.via.Models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ public class Chat {
     private Boolean groupChat;
 
     @ManyToMany
-    @JsonIgnore
+    @JsonIncludeProperties({"id"})
     private List<User> members =  new ArrayList<>();
 
     @OneToMany (mappedBy = "chat", cascade = CascadeType.ALL)

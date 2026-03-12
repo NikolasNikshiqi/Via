@@ -47,7 +47,11 @@ public class ChatService {
     @Transactional
     public List<Chat> getChats(User authedUser) {
         User user = userRepo.findById(authedUser.getId()).orElseThrow(() -> new UserNotFoundException("User not found"));
+
         user.getChats().size();
+        for (Chat chat : user.getChats()) {
+            chat.getMembers().size();
+        }
         return user.getChats();
     }
 }

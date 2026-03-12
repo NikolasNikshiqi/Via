@@ -10,6 +10,8 @@ import org.spring.via.Repositories.MessageRepo;
 import org.spring.via.Repositories.UserRepo;
 import org.spring.via.errors.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,12 +25,14 @@ public class MessageService {
 
     private final UserRepo userRepo;
     private final ChatRepo chatRepo;
-    private MessageRepo messageRepo;
+    private final MessageRepo messageRepo;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public MessageService(MessageRepo messageRepo, UserRepo userRepo, ChatRepo chatRepo) {
+    public MessageService(MessageRepo messageRepo, UserRepo userRepo, ChatRepo chatRepo, SimpMessagingTemplate messagingTemplate) {
         this.messageRepo = messageRepo;
         this.userRepo = userRepo;
         this.chatRepo = chatRepo;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional
@@ -50,6 +54,11 @@ public class MessageService {
         chat.getMessages().add(message);
         chatRepo.save(chat);
 
+        try {
+            messagingTemplate.convertAndSend("/topic/chat" + chatId, message);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -57,11 +66,9 @@ public class MessageService {
     public void getUndelievered(UUID chatId, Integer userId) {
         Chat chat = chatRepo.findById(chatId).orElseThrow(() -> new RuntimeException("Chat not found"));
         Integer recipientId = -1;
-        for(User user : chat.getMembers()) {
-            if(!user.getId().equals(userId)) {
-                recipientId = user.getId();
-            }
-        }
+
+        User recipient = chat.getMembers().stream().filter(u -> !u.getId().equals(userId)).findFirst().orElse(null);
+        recipientId = recipient.getId();
 
         List<Message> messages = messageRepo.findUndelievered(chatId, recipientId);
         for (Message message : messages) {
