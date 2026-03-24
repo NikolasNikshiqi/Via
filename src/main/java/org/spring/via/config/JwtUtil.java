@@ -49,6 +49,9 @@ public class JwtUtil {
         return parseToken(token).getBody().getSubject();
     }
 
+    public Date extractExpiration(String token){
+        return parseToken(token).getBody().getExpiration();
+    }
     public boolean validateToken(String token, String email) {
         final String tokenEmail = extractEmail(token);
         return tokenEmail.equals(email) && !isTokenExpired(token);

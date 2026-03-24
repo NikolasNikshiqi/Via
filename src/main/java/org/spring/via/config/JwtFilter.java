@@ -1,6 +1,7 @@
 package org.spring.via.config;
 
 import org.spring.via.Repositories.UserRepo;
+import org.spring.via.Services.BlacklistTokens;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,10 +19,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserRepo userRepository;
+    private final BlacklistTokens blacklistTokens;
 
-    public JwtFilter(JwtUtil jwtUtil, UserRepo userRepository) {
+    public JwtFilter(JwtUtil jwtUtil, UserRepo userRepository, BlacklistTokens blacklistTokens) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.blacklistTokens = blacklistTokens;
     }
 
     @Override
@@ -35,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String email = jwtUtil.extractEmail(token);
 
             userRepository.findByEmail(email).ifPresent(user -> {
-                if (jwtUtil.validateToken(token, user.getEmail())) {
+                if (jwtUtil.validateToken(token, user.getEmail()) && !blacklistTokens.isBlacklisted(token)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     user, null, user.getAuthorities());
