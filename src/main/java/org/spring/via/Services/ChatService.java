@@ -5,11 +5,13 @@ import org.spring.via.Models.Chat;
 import org.spring.via.Models.User;
 import org.spring.via.Repositories.ChatRepo;
 import org.spring.via.Repositories.UserRepo;
+import org.spring.via.config.DTOs;
 import org.spring.via.errors.UserNotContactException;
 import org.spring.via.errors.UserNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,13 +47,21 @@ public class ChatService {
     }
 
     @Transactional
-    public List<Chat> getChats(User authedUser) {
+    public List<DTOs.DisplayedChat> getChats(User authedUser) {
         User user = userRepo.findById(authedUser.getId()).orElseThrow(() -> new UserNotFoundException("User not found"));
-
+        List<DTOs.DisplayedChat> chats = new ArrayList<>();
         user.getChats().size();
+
         for (Chat chat : user.getChats()) {
-            chat.getMembers().size();
+            String contactName = "";
+            for(User member : chat.getMembers()){
+                if (member.getId() != user.getId()){
+                    contactName = member.getUsername();
+                    break;
+                }
+            }
+            chats.add(new DTOs.DisplayedChat(contactName,chat.getUuid()));
         }
-        return user.getChats();
+        return chats;
     }
 }

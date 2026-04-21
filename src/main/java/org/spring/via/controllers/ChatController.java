@@ -3,6 +3,7 @@ package org.spring.via.controllers;
 import org.spring.via.Models.Chat;
 import org.spring.via.Models.User;
 import org.spring.via.Services.ChatService;
+import org.spring.via.config.DTOs;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class ChatController {
     }
 
     @GetMapping("/chats")
-    public List<Chat> getChats(@AuthenticationPrincipal User currentUser) {
+    public List<DTOs.DisplayedChat> getChats(@AuthenticationPrincipal User currentUser) {
         return chatService.getChats(currentUser);
     }
 
